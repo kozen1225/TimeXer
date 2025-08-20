@@ -240,7 +240,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         input = test_data.inverse_transform(input.reshape(shape[0] * shape[1], -1)).reshape(shape)
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                    visual(gt, pd, os.path.join(folder_path, str(i) + '.png'))
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
@@ -254,16 +254,16 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}'.format(mse, mae))
+        mae, mse, rmse, mape, mspe, mae_std, mse_std = metric(preds, trues)
+        print('mse:{:.4f}, mae:{:.4f}, mse_std:{:.4f}, mae_std:{:.4f}'.format(mse, mae, mse_std, mae_std))
         f = open("result_long_term_forecast.txt", 'a')
         f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}'.format(mse, mae))
+        f.write('mse:{:.4f}, mae:{:.4f}, mse_std:{:.4f}, mae_std:{:.4f}'.format(mse, mae, mse_std, mae_std))
         f.write('\n')
         f.write('\n')
         f.close()
 
-        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe, mae_std, mse_std]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
 

@@ -1,0 +1,96 @@
+True
+Args in experiment:
+[1mBasic Config[0m
+  Task Name:          long_term_forecast  Is Training:        1                   
+  Model ID:           EULER1800           Model:              TimeXer             
+
+[1mData Loader[0m
+  Data:               custom              Root Path:          ./dataset/workload/ 
+  Data Path:          X_mean_1800_8_CIEMAT-Euler-2008-1_OT.csvFeatures:           MS                  
+  Target:             count               Freq:               h                   
+  Checkpoints:        ./checkpoints/      
+
+[1mForecasting Task[0m
+  Seq Len:            72                  Label Len:          48                  
+  Pred Len:           24                  Seasonal Patterns:  Monthly             
+  Inverse:            0                   
+
+[1mModel Parameters[0m
+  Top k:              5                   Num Kernels:        6                   
+  Enc In:             8                   Dec In:             8                   
+  C Out:              8                   d model:            512                 
+  n heads:            8                   e layers:           2                   
+  d layers:           1                   d FF:               2048                
+  Moving Avg:         25                  Factor:             1                   
+  Distil:             1                   Dropout:            0.1                 
+  Embed:              timeF               Activation:         gelu                
+
+[1mRun Parameters[0m
+  Num Workers:        10                  Itr:                1                   
+  Train Epochs:       10                  Batch Size:         32                  
+  Patience:           3                   Learning Rate:      1e-05               
+  Des:                Timexer-MS          Loss:               MSE                 
+  Lradj:              type1               Use Amp:            0                   
+
+[1mGPU[0m
+  Use GPU:            1                   GPU:                0                   
+  Use Multi GPU:      1                   Devices:            0,1,2,3             
+
+[1mDe-stationary Projector Params[0m
+  P Hidden Dims:      128, 128            P Hidden Layers:    2                   
+
+Use GPU: cuda:0
+>>>>>>>start training : long_term_forecast_EULER1800_TimeXer_custom_ftMS_sl72_ll48_pl24_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 111833
+val 15968
+test 31956
+	iters: 100, epoch: 1 | loss: 1.5691756
+	speed: 0.9864s/iter; left time: 34376.4258s
+True
+Args in experiment:
+[1mBasic Config[0m
+  Task Name:          long_term_forecast  Is Training:        1                   
+  Model ID:           EULER1800           Model:              TimeXer             
+
+[1mData Loader[0m
+  Data:               custom              Root Path:          ./dataset/workload/ 
+  Data Path:          X_mean_1800_8_CIEMAT-Euler-2008-1_OT.csvFeatures:           MS                  
+  Target:             count               Freq:               h                   
+  Checkpoints:        ./checkpoints/      
+
+[1mForecasting Task[0m
+  Seq Len:            72                  Label Len:          48                  
+  Pred Len:           24                  Seasonal Patterns:  Monthly             
+  Inverse:            0                   
+
+[1mModel Parameters[0m
+  Top k:              5                   Num Kernels:        6                   
+  Enc In:             8                   Dec In:             8                   
+  C Out:              8                   d model:            512                 
+  n heads:            8                   e layers:           2                   
+  d layers:           1                   d FF:               2048                
+  Moving Avg:         25                  Factor:             1                   
+  Distil:             1                   Dropout:            0.1                 
+  Embed:              timeF               Activation:         gelu                
+
+[1mRun Parameters[0m
+  Num Workers:        10                  Itr:                1                   
+  Train Epochs:       10                  Batch Size:         32                  
+  Patience:           3                   Learning Rate:      1e-05               
+  Des:                Timexer-MS          Loss:               MSE                 
+  Lradj:              type1               Use Amp:            0                   
+
+[1mGPU[0m
+  Use GPU:            1                   GPU:                0                   
+  Use Multi GPU:      1                   Devices:            0,1,2,3             
+
+[1mDe-stationary Projector Params[0m
+  P Hidden Dims:      128, 128            P Hidden Layers:    2                   
+
+Use GPU: cuda:0
+>>>>>>>start training : long_term_forecast_EULER1800_TimeXer_custom_ftMS_sl72_ll48_pl24_dm512_nh8_el2_dl1_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0>>>>>>>>>>>>>>>>>>>>>>>>>>
+train 111833
+val 15968
+test 31956
+	iters: 200, epoch: 1 | loss: 0.1880931
+	speed: 1.3742s/iter; left time: 47753.7504s

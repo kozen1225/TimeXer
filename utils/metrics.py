@@ -30,6 +30,15 @@ def MAPE(pred, true):
 def MSPE(pred, true):
     return np.mean(np.square((pred - true) / true))
 
+def MAE_std(pred, true):
+    # Standard deviation of absolute errors
+    return np.std(np.abs(pred - true))
+
+
+def MSE_std(pred, true):
+    # Standard deviation of squared errors
+    return np.std((pred - true) ** 2)
+
 # 标准差
 def STD(pred, true):
     return np.std(pred - true)
@@ -41,4 +50,6 @@ def metric(pred, true):
     mape = MAPE(pred, true)
     mspe = MSPE(pred, true)
 
-    return mae, mse, rmse, mape, mspe
+    mae_std = MAE_std(pred, true)
+    mse_std = MSE_std(pred, true)
+    return mae, mse, rmse, mape, mspe, mae_std, mse_std
