@@ -37,7 +37,10 @@ class Exp_Anomaly_Detection(Exp_Basic):
         return model_optim
 
     def _select_criterion(self):
-        criterion = nn.MSELoss()
+        if self.args.loss.lower() == 'huber':
+            criterion = nn.HuberLoss(delta=self.args.loss_delta)
+        else:  # 默认使用 MSE
+            criterion = nn.MSELoss()
         return criterion
 
     def vali(self, vali_data, vali_loader, criterion):
@@ -121,7 +124,7 @@ class Exp_Anomaly_Detection(Exp_Basic):
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
         best_model_path = path + '/' + 'checkpoint.pth'
-        self.model.load_state_dict(torch.load(best_model_path))
+        self.model.load_state_dict(torch.load(best_model_path, map_location=self.device))
 
         return self.model
 
@@ -130,7 +133,7 @@ class Exp_Anomaly_Detection(Exp_Basic):
         train_data, train_loader = self._get_data(flag='train')
         if test:
             print('loading model')
-            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth'), map_location=self.device))
 
         attens_energy = []
         folder_path = './test_results/' + setting + '/'

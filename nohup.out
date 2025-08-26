@@ -94,3 +94,181 @@ val 15968
 test 31956
 	iters: 200, epoch: 1 | loss: 0.1880931
 	speed: 1.3742s/iter; left time: 47753.7504s
+True
+Args in experiment:
+[1mBasic Config[0m
+  Task Name:          long_term_forecast  Is Training:        1                   
+  Model ID:           0820-1_1_delta_04862_gpu0Model:              TimeXer             
+
+[1mData Loader[0m
+  Data:               custom              Root Path:          ./dataset/workload/ 
+  Data Path:          0625_1548_8_CEA-Curie-2011-2.1-cln.csvFeatures:           MS                  
+  Target:             OT                  Freq:               t                   
+  Checkpoints:        ./checkpoints/      
+
+[1mForecasting Task[0m
+  Seq Len:            96                  Label Len:          48                  
+  Pred Len:           96                  Seasonal Patterns:  Monthly             
+  Inverse:            0                   
+
+[1mModel Parameters[0m
+  Top k:              5                   Num Kernels:        6                   
+  Enc In:             8                   Dec In:             8                   
+  C Out:              8                   d model:            512                 
+  n heads:            8                   e layers:           5                   
+  d layers:           2                   d FF:               2048                
+  Moving Avg:         25                  Factor:             1                   
+  Distil:             1                   Dropout:            0.1                 
+  Embed:              timeF               Activation:         gelu                
+
+[1mRun Parameters[0m
+  Num Workers:        10                  Itr:                1                   
+  Train Epochs:       10                  Batch Size:         32                  
+  Patience:           3                   Learning Rate:      0.0001              
+  Des:                Timexer-MS          Loss:               huber               
+  Lradj:              type1               Use Amp:            0                   
+
+[1mGPU[0m
+  Use GPU:            1                   GPU:                0                   
+  Use Multi GPU:      0                   Devices:            0,1,2,3             
+
+[1mDe-stationary Projector Params[0m
+  P Hidden Dims:      128, 128            P Hidden Layers:    2                   
+
+Use GPU: cuda:0
+Traceback (most recent call last):
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/run.py", line 177, in <module>
+    exp = Exp(args)  # set experiments
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/exp/exp_long_term_forecasting.py", line 21, in __init__
+    super(Exp_Long_Term_Forecast, self).__init__(args)
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/exp/exp_basic.py", line 45, in __init__
+    self.model = self._build_model().to(self.device)
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/exp/exp_long_term_forecasting.py", line 24, in _build_model
+    model = self.model_dict[self.args.model].Model(self.args).float()
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/models/TimeXer.py", line 137, in __init__
+    self.plot_trend_decompose = configs.plot_trend_decompose
+AttributeError: 'Namespace' object has no attribute 'plot_trend_decompose'
+True
+Args in experiment:
+[1mBasic Config[0m
+  Task Name:          long_term_forecast  Is Training:        1                   
+  Model ID:           0820-1_1_delta_04862_gpu0Model:              TimeXer             
+
+[1mData Loader[0m
+  Data:               custom              Root Path:          ./dataset/workload/ 
+  Data Path:          0625_1548_8_CEA-Curie-2011-2.1-cln.csvFeatures:           MS                  
+  Target:             OT                  Freq:               t                   
+  Checkpoints:        ./checkpoints/      
+
+[1mForecasting Task[0m
+  Seq Len:            96                  Label Len:          48                  
+  Pred Len:           96                  Seasonal Patterns:  Monthly             
+  Inverse:            0                   
+
+[1mModel Parameters[0m
+  Top k:              5                   Num Kernels:        6                   
+  Enc In:             8                   Dec In:             8                   
+  C Out:              8                   d model:            512                 
+  n heads:            8                   e layers:           5                   
+  d layers:           2                   d FF:               2048                
+  Moving Avg:         25                  Factor:             1                   
+  Distil:             1                   Dropout:            0.1                 
+  Embed:              timeF               Activation:         gelu                
+
+[1mRun Parameters[0m
+  Num Workers:        10                  Itr:                1                   
+  Train Epochs:       10                  Batch Size:         32                  
+  Patience:           3                   Learning Rate:      0.0001              
+  Des:                Timexer-MS          Loss:               huber               
+  Lradj:              type1               Use Amp:            0                   
+
+[1mGPU[0m
+  Use GPU:            1                   GPU:                0                   
+  Use Multi GPU:      0                   Devices:            0,1,2,3             
+
+[1mDe-stationary Projector Params[0m
+  P Hidden Dims:      128, 128            P Hidden Layers:    2                   
+
+Use GPU: cuda:0
+Traceback (most recent call last):
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/run.py", line 177, in <module>
+    exp = Exp(args)  # set experiments
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/exp/exp_long_term_forecasting.py", line 21, in __init__
+    super(Exp_Long_Term_Forecast, self).__init__(args)
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/exp/exp_basic.py", line 45, in __init__
+    self.model = self._build_model().to(self.device)
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/exp/exp_long_term_forecasting.py", line 24, in _build_model
+    model = self.model_dict[self.args.model].Model(self.args).float()
+  File "/import/gp-home.ciero/dinghr1999/TimeXer/models/TimeXer.py", line 137, in __init__
+    self.plot_trend_decompose = configs.plot_trend_decompose
+AttributeError: 'Namespace' object has no attribute 'plot_trend_decompose'
+usage: run.py [-h] --task_name TASK_NAME --is_training IS_TRAINING --model_id
+              MODEL_ID --model MODEL --data DATA [--root_path ROOT_PATH]
+              [--data_path DATA_PATH] [--features FEATURES] [--target TARGET]
+              [--freq FREQ] [--checkpoints CHECKPOINTS] [--seq_len SEQ_LEN]
+              [--label_len LABEL_LEN] [--pred_len PRED_LEN]
+              [--seasonal_patterns SEASONAL_PATTERNS] [--inverse]
+              [--mask_rate MASK_RATE] [--anomaly_ratio ANOMALY_RATIO]
+              [--expand EXPAND] [--d_conv D_CONV] [--top_k TOP_K]
+              [--num_kernels NUM_KERNELS] [--enc_in ENC_IN] [--dec_in DEC_IN]
+              [--c_out C_OUT] [--d_model D_MODEL] [--n_heads N_HEADS]
+              [--e_layers E_LAYERS] [--d_layers D_LAYERS] [--d_ff D_FF]
+              [--moving_avg MOVING_AVG] [--factor FACTOR] [--distil]
+              [--dropout DROPOUT] [--embed EMBED] [--activation ACTIVATION]
+              [--output_attention]
+              [--channel_independence CHANNEL_INDEPENDENCE]
+              [--decomp_method DECOMP_METHOD] [--use_norm USE_NORM]
+              [--down_sampling_layers DOWN_SAMPLING_LAYERS]
+              [--down_sampling_window DOWN_SAMPLING_WINDOW]
+              [--down_sampling_method DOWN_SAMPLING_METHOD]
+              [--seg_len SEG_LEN] [--num_workers NUM_WORKERS] [--itr ITR]
+              [--train_epochs TRAIN_EPOCHS] [--batch_size BATCH_SIZE]
+              [--patience PATIENCE] [--learning_rate LEARNING_RATE]
+              [--des DES] [--loss LOSS] [--loss_delta LOSS_DELTA]
+              [--lradj LRADJ] [--use_amp] [--use_gpu USE_GPU] [--gpu GPU]
+              [--use_multi_gpu] [--devices DEVICES]
+              [--p_hidden_dims P_HIDDEN_DIMS [P_HIDDEN_DIMS ...]]
+              [--p_hidden_layers P_HIDDEN_LAYERS] [--use_dtw USE_DTW]
+              [--augmentation_ratio AUGMENTATION_RATIO] [--seed SEED]
+              [--jitter] [--scaling] [--permutation] [--randompermutation]
+              [--magwarp] [--timewarp] [--windowslice] [--windowwarp]
+              [--rotation] [--spawner] [--dtwwarp] [--shapedtwwarp] [--wdba]
+              [--discdtw] [--discsdtw] [--extra_tag EXTRA_TAG]
+              [--patch_len PATCH_LEN] [--use_trend_decompose]
+              [--trend_kernel_size TREND_KERNEL_SIZE]
+run.py: error: unrecognized arguments: ss
+usage: run.py [-h] --task_name TASK_NAME --is_training IS_TRAINING --model_id
+              MODEL_ID --model MODEL --data DATA [--root_path ROOT_PATH]
+              [--data_path DATA_PATH] [--features FEATURES] [--target TARGET]
+              [--freq FREQ] [--checkpoints CHECKPOINTS] [--seq_len SEQ_LEN]
+              [--label_len LABEL_LEN] [--pred_len PRED_LEN]
+              [--seasonal_patterns SEASONAL_PATTERNS] [--inverse]
+              [--mask_rate MASK_RATE] [--anomaly_ratio ANOMALY_RATIO]
+              [--expand EXPAND] [--d_conv D_CONV] [--top_k TOP_K]
+              [--num_kernels NUM_KERNELS] [--enc_in ENC_IN] [--dec_in DEC_IN]
+              [--c_out C_OUT] [--d_model D_MODEL] [--n_heads N_HEADS]
+              [--e_layers E_LAYERS] [--d_layers D_LAYERS] [--d_ff D_FF]
+              [--moving_avg MOVING_AVG] [--factor FACTOR] [--distil]
+              [--dropout DROPOUT] [--embed EMBED] [--activation ACTIVATION]
+              [--output_attention]
+              [--channel_independence CHANNEL_INDEPENDENCE]
+              [--decomp_method DECOMP_METHOD] [--use_norm USE_NORM]
+              [--down_sampling_layers DOWN_SAMPLING_LAYERS]
+              [--down_sampling_window DOWN_SAMPLING_WINDOW]
+              [--down_sampling_method DOWN_SAMPLING_METHOD]
+              [--seg_len SEG_LEN] [--num_workers NUM_WORKERS] [--itr ITR]
+              [--train_epochs TRAIN_EPOCHS] [--batch_size BATCH_SIZE]
+              [--patience PATIENCE] [--learning_rate LEARNING_RATE]
+              [--des DES] [--loss LOSS] [--loss_delta LOSS_DELTA]
+              [--lradj LRADJ] [--use_amp] [--use_gpu USE_GPU] [--gpu GPU]
+              [--use_multi_gpu] [--devices DEVICES]
+              [--p_hidden_dims P_HIDDEN_DIMS [P_HIDDEN_DIMS ...]]
+              [--p_hidden_layers P_HIDDEN_LAYERS] [--use_dtw USE_DTW]
+              [--augmentation_ratio AUGMENTATION_RATIO] [--seed SEED]
+              [--jitter] [--scaling] [--permutation] [--randompermutation]
+              [--magwarp] [--timewarp] [--windowslice] [--windowwarp]
+              [--rotation] [--spawner] [--dtwwarp] [--shapedtwwarp] [--wdba]
+              [--discdtw] [--discsdtw] [--extra_tag EXTRA_TAG]
+              [--patch_len PATCH_LEN] [--use_trend_decompose]
+              [--trend_kernel_size TREND_KERNEL_SIZE]
+run.py: error: unrecognized arguments: ss

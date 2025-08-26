@@ -3,7 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
 from layers.Embed import DataEmbedding_inverted, PositionalEmbedding
+from layers.Decomposition import TrendExtractor
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class FlattenHead(nn.Module):
@@ -56,15 +58,17 @@ class Encoder(nn.Module):
         self.projection = projection
 
     def forward(self, x, cross, x_mask=None, cross_mask=None, tau=None, delta=None):
+        attns = []
         for layer in self.layers:
-            x = layer(x, cross, x_mask=x_mask, cross_mask=cross_mask, tau=tau, delta=delta)
+            x, attn = layer(x, cross, x_mask=x_mask, cross_mask=cross_mask, tau=tau, delta=delta)
+            attns.append(attn)
 
         if self.norm is not None:
             x = self.norm(x)
 
         if self.projection is not None:
             x = self.projection(x)
-        return x
+        return x, attns
 
 
 class EncoderLayer(nn.Module):
@@ -84,20 +88,25 @@ class EncoderLayer(nn.Module):
 
     def forward(self, x, cross, x_mask=None, cross_mask=None, tau=None, delta=None):
         B, L, D = cross.shape
-        x = x + self.dropout(self.self_attention(
+        
+        self_attn_output, _ = self.self_attention(
             x, x, x,
             attn_mask=x_mask,
             tau=tau, delta=None
-        )[0])
+        )
+        x = x + self.dropout(self_attn_output)
         x = self.norm1(x)
 
         x_glb_ori = x[:, -1, :].unsqueeze(1)
         x_glb = torch.reshape(x_glb_ori, (B, -1, D))
-        x_glb_attn = self.dropout(self.cross_attention(
+        
+        x_glb_attn, cross_attn = self.cross_attention(
             x_glb, cross, cross,
             attn_mask=cross_mask,
             tau=tau, delta=delta
-        )[0])
+        )
+        x_glb_attn = self.dropout(x_glb_attn)
+
         x_glb_attn = torch.reshape(x_glb_attn,
                                    (x_glb_attn.shape[0] * x_glb_attn.shape[1], x_glb_attn.shape[2])).unsqueeze(1)
         x_glb = x_glb_ori + x_glb_attn
@@ -108,7 +117,7 @@ class EncoderLayer(nn.Module):
         y = self.dropout(self.activation(self.conv1(y.transpose(-1, 1))))
         y = self.dropout(self.conv2(y).transpose(-1, 1))
 
-        return self.norm3(x + y)
+        return self.norm3(x + y), cross_attn
 
 
 class Model(nn.Module):
@@ -123,11 +132,20 @@ class Model(nn.Module):
         self.patch_len = configs.patch_len
         self.patch_num = int(configs.seq_len // configs.patch_len)
         self.n_vars = 1 if configs.features == 'MS' else configs.enc_in
+        self.output_attention = configs.output_attention
+        self.use_trend_decompose = configs.use_trend_decompose
+        #self.plot_trend_decompose = configs.plot_trend_decompose
+
         # Embedding
         self.en_embedding = EnEmbedding(self.n_vars, configs.d_model, self.patch_len, configs.dropout)
 
         self.ex_embedding = DataEmbedding_inverted(configs.seq_len, configs.d_model, configs.embed, configs.freq,
                                                    configs.dropout)
+        
+        if self.use_trend_decompose:
+            self.trend_extractor = TrendExtractor(kernel_size=configs.trend_kernel_size)
+            self.trend_head = nn.Linear(configs.d_model * (self.patch_num + 1), configs.pred_len)
+
 
         # Encoder-only architecture
         self.encoder = Encoder(
@@ -135,11 +153,11 @@ class Model(nn.Module):
                 EncoderLayer(
                     AttentionLayer(
                         FullAttention(False, configs.factor, attention_dropout=configs.dropout,
-                                      output_attention=False),
+                                      output_attention=self.output_attention),
                         configs.d_model, configs.n_heads),
                     AttentionLayer(
                         FullAttention(False, configs.factor, attention_dropout=configs.dropout,
-                                      output_attention=False),
+                                      output_attention=self.output_attention),
                         configs.d_model, configs.n_heads),
                     configs.d_model,
                     configs.d_ff,
@@ -167,13 +185,47 @@ class Model(nn.Module):
         en_embed, n_vars = self.en_embedding(x_enc[:, :, -1].unsqueeze(-1).permute(0, 2, 1))
         ex_embed = self.ex_embedding(x_enc[:, :, :-1], x_mark_enc)
 
-        enc_out = self.encoder(en_embed, ex_embed)
+        if self.use_trend_decompose:
+            trend, residual = self.trend_extractor(en_embed.permute(0, 2, 1))
+            trend = trend.permute(0, 2, 1)
+            residual = residual.permute(0, 2, 1)
+
+            # if self.plot_trend_decompose:
+            #     # Plotting for the first sample in the batch, first variable, first embedding dimension
+            #     first_original = en_embed[0, 0, :].detach().cpu().numpy()
+            #     first_trend = trend[0, 0, :].detach().cpu().numpy()
+            #     first_residual = residual[0, 0, :].detach().cpu().numpy()
+
+            #     plt.figure(figsize=(12, 6))
+            #     plt.plot(first_original, label='Original Patch Embedding')
+            #     plt.plot(first_trend, label='Trend Component')
+            #     plt.plot(first_residual, label='Residual Component')
+            #     plt.title('Trend and Residual Decomposition (First Sample)')
+            #     plt.xlabel('Patch Index')
+            #     plt.ylabel('Value')
+            #     plt.legend()
+            #     plt.grid(True)
+            #     plt.tight_layout()
+            #     plt.savefig('trend_residual_decomposition_forecast.png')
+            #     plt.close()
+            #     print("Saved trend/residual decomposition plot to trend_residual_decomposition_forecast.png")
+            
+            enc_out, attns = self.encoder(residual, ex_embed)
+            
+            trend_out = self.trend_head(trend.reshape(trend.shape[0], -1))
+            trend_out = trend_out.reshape(-1, n_vars, self.pred_len).permute(0, 2, 1)
+        else:
+            enc_out, attns = self.encoder(en_embed, ex_embed)
+
         enc_out = torch.reshape(
             enc_out, (-1, n_vars, enc_out.shape[-2], enc_out.shape[-1]))
         # z: [bs x nvars x d_model x patch_num]
         enc_out = enc_out.permute(0, 1, 3, 2)
 
         dec_out = self.head(enc_out)  # z: [bs x nvars x target_window]
+        if self.use_trend_decompose:
+            dec_out = dec_out + trend_out.permute(0, 2, 1)
+
         dec_out = dec_out.permute(0, 2, 1)
 
         if self.use_norm:
@@ -181,7 +233,7 @@ class Model(nn.Module):
             dec_out = dec_out * (stdev[:, 0, -1:].unsqueeze(1).repeat(1, self.pred_len, 1))
             dec_out = dec_out + (means[:, 0, -1:].unsqueeze(1).repeat(1, self.pred_len, 1))
 
-        return dec_out
+        return dec_out, attns
 
 
     def forecast_multi(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
@@ -197,13 +249,28 @@ class Model(nn.Module):
         en_embed, n_vars = self.en_embedding(x_enc.permute(0, 2, 1))
         ex_embed = self.ex_embedding(x_enc, x_mark_enc)
 
-        enc_out = self.encoder(en_embed, ex_embed)
+        if self.use_trend_decompose:
+            trend, residual = self.trend_extractor(en_embed.permute(0, 2, 1))
+            trend = trend.permute(0, 2, 1)
+            residual = residual.permute(0, 2, 1)
+
+            
+            enc_out, attns = self.encoder(residual, ex_embed)
+            
+            trend_out = self.trend_head(trend.reshape(trend.shape[0], -1))
+            trend_out = trend_out.reshape(-1, n_vars, self.pred_len).permute(0, 2, 1)
+        else:
+            enc_out, attns = self.encoder(en_embed, ex_embed)
+
         enc_out = torch.reshape(
             enc_out, (-1, n_vars, enc_out.shape[-2], enc_out.shape[-1]))
         # z: [bs x nvars x d_model x patch_num]
         enc_out = enc_out.permute(0, 1, 3, 2)
 
         dec_out = self.head(enc_out)  # z: [bs x nvars x target_window]
+        if self.use_trend_decompose:
+            dec_out = dec_out + trend_out.permute(0, 2, 1)
+
         dec_out = dec_out.permute(0, 2, 1)
 
         if self.use_norm:
@@ -211,15 +278,21 @@ class Model(nn.Module):
             dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
             dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
 
-        return dec_out
+        return dec_out, attns
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
         if self.task_name == 'long_term_forecast' or self.task_name == 'short_term_forecast':
             if self.features == 'M':
-                dec_out = self.forecast_multi(x_enc, x_mark_enc, x_dec, x_mark_dec)
-                return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+                dec_out, attns = self.forecast_multi(x_enc, x_mark_enc, x_dec, x_mark_dec)
             else:
-                dec_out = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
+                dec_out, attns = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
+            
+            if self.output_attention:
+                return dec_out[:, -self.pred_len:, :], attns
+            else:
                 return dec_out[:, -self.pred_len:, :]  # [B, L, D]
         else:
-            return None
+            if self.output_attention:
+                return None, None
+            else:
+                return None

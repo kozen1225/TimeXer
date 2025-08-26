@@ -9,6 +9,9 @@ import os
 import time
 import warnings
 import numpy as np
+from statsmodels.tsa.seasonal import STL
+from dtaidistance import dtw
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
@@ -33,7 +36,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         return model_optim
 
     def _select_criterion(self):
-        criterion = nn.MSELoss()
+        if self.args.loss.lower() == 'huber':
+            criterion = nn.HuberLoss(delta=self.args.loss_delta)
+        else: # 默认使用 MSE
+            criterion = nn.MSELoss()
         return criterion
 
     def vali(self, vali_data, vali_loader, criterion):
@@ -54,12 +60,20 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            outputs, attention_list = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            print(f"Number of attention layers: {len(attention_list)}")
+                            for i, att in enumerate(attention_list):
+                                if att is not None:
+                                    print(f"Attention from layer {i+1} shape: {att.shape}")
                         else:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if self.args.output_attention:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        outputs, attention_list = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        print(f"Number of attention layers: {len(attention_list)}")
+                        for i, att in enumerate(attention_list):
+                            if att is not None:
+                                print(f"Attention from layer {i+1} shape: {att.shape}")
                     else:
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 f_dim = -1 if self.args.features == 'MS' else 0
@@ -119,7 +133,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            outputs, attention_list = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            print(f"Number of attention layers: {len(attention_list)}")
+                            for i, att in enumerate(attention_list):
+                                if att is not None:
+                                    print(f"Attention from layer {i+1} shape: {att.shape}")
                         else:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
@@ -130,7 +148,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         train_loss.append(loss.item())
                 else:
                     if self.args.output_attention:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        outputs, attention_list = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        print(f"Number of attention layers: {len(attention_list)}")
+                        for i, att in enumerate(attention_list):
+                            if att is not None:
+                                print(f"Attention from layer {i+1} shape: {att.shape}")
                     else:
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
@@ -203,12 +225,20 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            outputs, attention_list = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            print(f"Number of attention layers: {len(attention_list)}")
+                            for i, att in enumerate(attention_list):
+                                if att is not None:
+                                    print(f"Attention from layer {i+1} shape: {att.shape}")
                         else:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if self.args.output_attention:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        outputs, attention_list = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        print(f"Number of attention layers: {len(attention_list)}")
+                        for i, att in enumerate(attention_list):
+                            if att is not None:
+                                print(f"Attention from layer {i+1} shape: {att.shape}")
 
                     else:
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
@@ -238,8 +268,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     if test_data.scale and self.args.inverse:
                         shape = input.shape
                         input = test_data.inverse_transform(input.reshape(shape[0] * shape[1], -1)).reshape(shape)
+                    # `gt` (ground truth) 包含了历史数据和真实的未来数据。
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    # `pd` (prediction) 为了在图上清晰地展示，应该只包含预测的未来数据。
+                    # 我们用 NaN 填充历史数据部分，这样绘图时就会跳过这部分。
+                    pd = np.concatenate((np.full(input.shape[1], np.nan), pred[0, :, -1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.png'))
 
         preds = np.concatenate(preds, axis=0)
@@ -248,6 +281,54 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         print('test shape:', preds.shape, trues.shape)
+
+        # STL, DTW and Plotting
+        try:
+            # Take the first sample and first feature for analysis and plotting
+            y_true_sample = trues[0, :, 0]
+            y_pred_sample = preds[0, :, 0]
+
+            # 1. STL Decomposition
+            # STL requires the series to be long enough and have a period.
+            # We choose a period, ensuring it's an odd integer and smaller than the series length.
+            if len(y_true_sample) >= 14:
+                period = 7
+            else:
+                period = max(3, int(len(y_true_sample) / 2) * 2 - 1)
+
+            if len(y_true_sample) > 2 * period:
+                stl = STL(y_true_sample, period=period, robust=True)
+                res = stl.fit()
+                trend_baseline = res.trend
+
+                # 2. Calculate MAE and DTW
+                mae_sample = np.mean(np.abs(y_true_sample - y_pred_sample))
+                dtw_distance, _ = dtw.warping_paths(y_true_sample, y_pred_sample)
+
+                print(f'--- Analysis for the first sample ---')
+                print(f'MAE: {mae_sample:.4f}')
+                print(f'DTW Distance: {dtw_distance:.4f}')
+
+                # 3. Plotting
+                plt.figure(figsize=(15, 7))
+                plt.plot(y_true_sample, label='Original Ground Truth')
+                plt.plot(trend_baseline, label='Trend Baseline (STL)')
+                plt.plot(y_pred_sample, label='Prediction')
+                plt.legend()
+                plt.title(f'Forecast vs. Ground Truth vs. Trend ({setting})')
+                
+                # The folder_path is defined as './test_results/' + setting + '/' earlier
+                # Let's use that one.
+                plot_save_path = os.path.join(folder_path, 'trend_comparison_plot.png')
+                plt.savefig(plot_save_path)
+                plt.close()
+                print(f'Comparison plot saved to {plot_save_path}')
+            else:
+                print("Time series is too short for STL decomposition.")
+
+        except Exception as e:
+            print(f"An error occurred during STL/DTW/Plotting: {e}")
+
 
         # result save
         folder_path = './results/' + setting + '/'

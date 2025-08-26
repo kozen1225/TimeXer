@@ -145,3 +145,60 @@ mse:0.18184007704257965, mae:0.1375625729560852
 long_term_forecast_0820_1-0.25-52_CEA_TimeXer_custom_ftMS_sl96_ll48_pl24_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
 mse:0.1818, mae:0.1376, mse_std:1.0845, mae_std:0.4036
 
+long_term_forecast_0820_1-0.25-52_CEA_TimeXer_custom_ftMS_sl96_ll48_pl24_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.1818, mae:0.1376, mse_std:1.0845, mae_std:0.4036
+
+long_term_forecast_0820-1:25_TimeXer_custom_ftMS_sl96_ll48_pl24_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.1808, mae:0.1215, mse_std:1.2092, mae_std:0.4075
+
+long_term_forecast_0820-1:1_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3209, mae:0.1826, mse_std:1.7992, mae_std:0.5362
+
+long_term_forecast_0820-1:1_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3209, mae:0.1826, mse_std:1.7992, mae_std:0.5362
+
+long_term_forecast_0820-1_1_delta_03862_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3428, mae:0.1904, mse_std:1.8509, mae_std:0.5537
+
+long_term_forecast_0820-1_1_delta_04362_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3221, mae:0.1845, mse_std:1.7955, mae_std:0.5367
+
+long_term_forecast_0820-1_1_delta_04862_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3379, mae:0.1906, mse_std:1.8159, mae_std:0.5491
+
+long_term_forecast_0820-1_1_delta_03362_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3229, mae:0.1841, mse_std:1.8032, mae_std:0.5376
+
+long_term_forecast_0820-1_1_delta_06362_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3087, mae:0.1819, mse_std:1.7471, mae_std:0.5250
+
+long_term_forecast_0820-1_1_delta_05862_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3120, mae:0.1813, mse_std:1.7671, mae_std:0.5283
+
+long_term_forecast_0820-1_1_delta_05362_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3125, mae:0.1855, mse_std:1.7364, mae_std:0.5274
+
+long_term_forecast_0820-1_1_delta_03362_gpu0_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3229, mae:0.1841, mse_std:1.8032, mae_std:0.5376
+
+long_term_forecast_0820-1_1_delta_05362_gpu0_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3125, mae:0.1855, mse_std:1.7364, mae_std:0.5274
+
+long_term_forecast_0820-1_1_delta_04862_gpu0_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3379, mae:0.1906, mse_std:1.8159, mae_std:0.5491
+
+long_term_forecast_0820-1_1_delta_04862_gpu0_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3692, mae:0.2069, mse_std:1.8443, mae_std:0.5713
+
+long_term_forecast_0825_delta_04862_gpu0_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3445, mae:0.2065, mse_std:1.7416, mae_std:0.5495
+
+long_term_forecast_0825_delta_04862_gpu0_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3445, mae:0.2065, mse_std:1.7416, mae_std:0.5495
+
+long_term_forecast_0825_MSE_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3445, mae:0.2065, mse_std:1.7416, mae_std:0.5495
+
+long_term_forecast_0825_delta_04862_gpu0_TimeXer_custom_ftMS_sl96_ll48_pl96_dm512_nh8_el5_dl2_df2048_expand2_dc4_fc1_ebtimeF_dtTrue_Timexer-MS_0  
+mse:0.3692, mae:0.2069, mse_std:1.8443, mae_std:0.5713
+

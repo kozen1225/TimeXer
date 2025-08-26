@@ -93,8 +93,8 @@ if __name__ == '__main__':
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--des', type=str, default='test', help='exp description')
-    parser.add_argument('--
-    】', type=str, default='MSE', help='loss function')
+    parser.add_argument('--loss', type=str, default='MSE', help='loss function')
+    parser.add_argument('--loss_delta', type=float, default=1.0, help='delta for Huber loss')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 
@@ -139,6 +139,9 @@ if __name__ == '__main__':
 
     # TimeXer
     parser.add_argument('--patch_len', type=int, default=16, help='patch length')
+    parser.add_argument('--use_trend_decompose', action='store_true', help='use trend decomposition', default=False)
+    parser.add_argument('--trend_kernel_size', type=int, default=25, help='moving average kernel size for trend decomposition')
+    #parser.add_argument('--plot_trend_decompose', action='store_true', help='plot trend and residual decomposition', default=False)
 
     args = parser.parse_args()
     # args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
